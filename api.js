@@ -26,8 +26,7 @@ var app = express();
 
 // all environments
 app.set('port', process.env.PORT || 3000);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
+
 
 app.use(function(req, res, next) {
   if (toobusy()) {
@@ -40,7 +39,7 @@ app.use(function(req, res, next) {
 app.use(express.favicon());
 app.use(express.logger('dev'));
 
-// app.use(express.bodyParser());
+// app.use(express.bodyParser()); // <- omitted for file uploads handling
 app.use(express.json());
 app.use(express.urlencoded());
 
@@ -61,30 +60,6 @@ app.use(sessions({
   }
 }));
 
-// app.use(sessions({
-//   cookieName: 'recall',
-//   duration: 7 * 24 * 60 * 60 * 1000,
-//   secret: 'qwer1234',
-//   cookie: {
-//     path: '/', // cookie will only be sent to requests under '/v1'
-//     ephemeral: false, // when true, cookie expires when the browser closes
-//     httpOnly: false, // when true, cookie is not accessible from javascript
-//     secure: false   // when true, cookie will only be sent over SSL
-//   }
-// }));
-
-//TODO move CUBE in here
-// app.use(function(req, res, next) {
-//   // console.log(req.session);
-//   if (req.session.seenyou) {
-//     res.setHeader('X-Seen-You', 'true');
-//   } else {
-//     req.session.seenyou = true;
-//     res.setHeader('X-Seen-You', 'false');
-//   }
-//   // res.setHeader('X-Lag', toobusy.lag()); //FIXME move to hearbeat?
-//   next();
-// });
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -139,14 +114,6 @@ passport.serializeUser(Account.serializeUser());
 passport.deserializeUser(Account.deserializeUser());
 
 
-app.get('/', function(req, res) {
-  res.redirect('http://hyperaud.io/');
-});
-
-app.get('/v1', function(req, res) {
-  res.redirect('http://hyperaud.io/');
-});
-
 app.get('/v1/status', function(req, res) {
   res.json({
     lag: toobusy.lag()
@@ -154,28 +121,18 @@ app.get('/v1/status', function(req, res) {
 });
 
 app.get('/v1/whoami', function(req, res) {
-
   //FIXME
   if (typeof req.session.user == "undefined") {
     req.session.user = null;
   }
-
-  // if (req.recall) req.recall.user = req.session.user;
 
   res.json({
     user: req.session.user
   });
 });
 
-app.get('/v1/login', function(req, res) {
-  res.render('login', {
-    user: req.user
-  });
-});
-
 app.post('/v1/login', passport.authenticate('local'), function(req, res) {
   req.session.user = req.user.username;
-  //FIXME: here we miss invalide login attemtps
 
   res.json({
     user: req.user.username
@@ -183,21 +140,16 @@ app.post('/v1/login', passport.authenticate('local'), function(req, res) {
 });
 
 app.post('/v1/logout', function(req, res) {
-
-  req.logout(); //TODO has any meaning anymore?
-
+  req.logout();
   req.session.user = null;
+
   res.json({
     user: null
   });
 });
 
-app.get('/v1/register', function(req, res) {
-  res.render('register', {});
-});
 
 app.post('/v1/register', function(req, res) {
-
   Account.register(new Account({
       _id: urlSafeBase64.encode(uuid.v4(null, new Buffer(16), 0)),
       username: req.body.username,
@@ -231,7 +183,7 @@ require('./routes/transcripts')(app, nconf);
 require('./routes/mixes')(app, nconf);
 
 app.post('/v1/error/:component', function(req, res) {
-
+  // EMPTY! FIXME
   res.json({});
 });
 
@@ -259,13 +211,4 @@ process.on('SIGINT', function() {
   process.exit();
 });
 
-
-// function ensureAuthenticated(req, res, next) {
-//   if (req.isAuthenticated()) { return next(); }
-//   // if (req.session.user) {
-//   //   return next();
-//   // }
-//   res.send(401);
-//   // res.redirect('/v1/login');
-// }
 
