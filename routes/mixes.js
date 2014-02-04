@@ -1,5 +1,5 @@
 var passport = require('passport');
-var Mix = require('./models/mix');
+var Mix = require('../models/mix');
 var fs = require('fs');
 var path = require('path');
 

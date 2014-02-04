@@ -6,9 +6,9 @@ var mongoose = require('mongoose');
 var uuid = require("node-uuid");
 var urlSafeBase64 = require('urlsafe-base64');
 
-var MediaObject = require('./models/mediaObject');
-var Transcript = require('./models/transcript');
-var Metadata = require('./models/metadata');
+var MediaObject = require('../models/mediaObject');
+var Transcript = require('../models/transcript');
+var Metadata = require('../models/metadata');
 
 var fivebeans = require('fivebeans');
 var client = new fivebeans.client('127.0.0.1', 11300);
