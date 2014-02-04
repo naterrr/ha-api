@@ -8,14 +8,14 @@
 	},
   {
     "name" : "download",
-    "script" : "./runner-download.js"
+    "script" : "./runners/runner-download.js"
   },
   {
     "name" : "probe",
-    "script" : "./runner-probe.js"
+    "script" : "./runners/runner-probe.js"
   },
   {
     "name" : "mod9",
-    "script" : "./runner-mod9.js"
+    "script" : "./runners/runner-mod9.js"
   }
 ]

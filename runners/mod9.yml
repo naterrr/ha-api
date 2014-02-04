@@ -2,7 +2,7 @@ beanstalkd:
     host: "127.0.0.1"
     port: 11300
 handlers:
-    - "./workers/download.js"
+    - "../workers/mod9.js"
 watch:
-    - 'download'
+    - 'align'
 ignoreDefault: true
