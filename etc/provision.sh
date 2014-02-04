@@ -137,6 +137,18 @@ cd /vagrant/tools
 ln -sf /opt/beanstalk_console/public beanstalkd
 ln -sf /opt/genghis-2.3.10 mongo
 
+# redis
+apt-get -y install tcl8.5
+cd /opt
+wget http://download.redis.io/releases/redis-2.8.5.tar.gz
+tar xzf redis-2.8.5.tar.gz
+cd redis-2.8.5
+make
+make install
+cd utils/
+# todo, make this next step non-interactive
+./install_server.sh
+
 
 # mod_h264
 # cd /opt
