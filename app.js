@@ -128,7 +128,7 @@ app.use(require('less-middleware')({
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-// development only
+// development only FIXME
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
@@ -245,8 +245,6 @@ app.post('/v1/register', function(req, res) {
 require('./media')(app, nconf);
 require('./transcripts')(app, nconf);
 require('./mixes')(app, nconf);
-require('./subscribers')(app, nconf);
-
 
 app.post('/v1/error/:component', function(req, res) {
   cube("error_" + req.param.component, {
