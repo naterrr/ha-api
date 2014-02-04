@@ -12,9 +12,6 @@ var mongoose = require('mongoose');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 
-var dgram = require("dgram");
-var udp = dgram.createSocket("udp4");
-
 var uuid = require("node-uuid");
 var urlSafeBase64 = require('urlsafe-base64');
 
@@ -163,10 +160,6 @@ app.get('/v1/whoami', function(req, res) {
     req.session.user = null;
   }
 
-  cube("get_whoami", {
-    user: req.session.user
-  });
-
   // if (req.recall) req.recall.user = req.session.user;
 
   res.json({
@@ -183,9 +176,6 @@ app.get('/v1/login', function(req, res) {
 app.post('/v1/login', passport.authenticate('local'), function(req, res) {
   req.session.user = req.user.username;
   //FIXME: here we miss invalide login attemtps
-  cube("post_login", {
-    user: req.session.user
-  });
 
   res.json({
     user: req.user.username
@@ -193,9 +183,6 @@ app.post('/v1/login', passport.authenticate('local'), function(req, res) {
 });
 
 app.post('/v1/logout', function(req, res) {
-  cube("post_logout", {
-    user: req.session.user
-  });
 
   req.logout(); //TODO has any meaning anymore?
 
@@ -219,9 +206,6 @@ app.post('/v1/register', function(req, res) {
     req.body.password,
     function(err, account) {
       //FIXME we should log invalid ones too
-      cube("post_register", {
-        user: req.body.username
-      });
 
       if (err) {
         return res.send(401);
@@ -247,10 +231,6 @@ require('./transcripts')(app, nconf);
 require('./mixes')(app, nconf);
 
 app.post('/v1/error/:component', function(req, res) {
-  cube("error_" + req.param.component, {
-    user: req.body.user,
-    errorReport: req.body.errorReport
-  });
 
   res.json({});
 });
@@ -289,11 +269,3 @@ process.on('SIGINT', function() {
 //   // res.redirect('/v1/login');
 // }
 
-function cube(type, data) {
-  var buffer = new Buffer(JSON.stringify({
-    "type": type,
-    "time": new Date().toISOString(),
-    "data": data
-  }));
-  udp.send(buffer, 0, buffer.length, 1180, "127.0.0.1");
-}

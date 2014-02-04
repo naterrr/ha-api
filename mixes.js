@@ -6,19 +6,6 @@ var path = require('path');
 var uuid = require("node-uuid");
 var urlSafeBase64 = require('urlsafe-base64');
 
-//FIXME: duplicate
-var dgram = require("dgram");
-var udp = dgram.createSocket("udp4");
-
-function cube(type, data) {
-  var buffer = new Buffer(JSON.stringify({
-    "type": type,
-    "time": new Date().toISOString(),
-    "data": data
-  }));
-  udp.send(buffer, 0, buffer.length, 1180, "127.0.0.1");
-}
-
 function ensureOwnership(req, res, next) {
   if (req.isAuthenticated()) {
     var owner = (req.params.user)?req.params.user:req.body.owner;
@@ -42,9 +29,6 @@ function ensureOwnership(req, res, next) {
 module.exports = function(app, nconf) {
 
   app.get('/v1/:user?/mixes', function(req, res) {
-    cube("get_mixes", {
-      user: req.params.user
-    });
     if (req.params.user) {
       var query = {
         owner: req.params.user
@@ -59,10 +43,6 @@ module.exports = function(app, nconf) {
   });
 
   app.get('/v1/:user?/mixes/channels', function(req, res) {
-    cube("get_mixes_channels", {
-      user: req.params.user
-    });
-
     if (req.params.user) {
       return Mix.distinct('channel', {
         owner: req.params.user
@@ -77,10 +57,6 @@ module.exports = function(app, nconf) {
   });
 
   app.get('/v1/:user?/mixes/tags', function(req, res) {
-    cube("get_mixes_tags", {
-      user: req.params.user
-    });
-
     if (req.params.user) {
       return Mix.distinct('tags', {
         owner: req.params.user
@@ -95,9 +71,6 @@ module.exports = function(app, nconf) {
   });
 
   app.get('/v1/:user?/mixes/tags/notag', function(req, res) {
-    cube("get_mixes_by_tag", {
-      user: req.params.user
-    });
     if (req.params.user) {
       var query = {
         owner: req.params.user,
@@ -116,9 +89,6 @@ module.exports = function(app, nconf) {
   });
 
   app.get('/v1/:user?/mixes/channels/nochannel', function(req, res) {
-    cube("get_mixes_by_channel", {
-      user: req.params.user
-    });
     if (req.params.user) {
       var query = {
         owner: req.params.user,
@@ -137,9 +107,6 @@ module.exports = function(app, nconf) {
   });
 
   app.get('/v1/:user?/mixes/tags/:tag', function(req, res) {
-    cube("get_mixes_by_tag", {
-      user: req.params.user
-    });
     if (req.params.user) {
       var query = {
         owner: req.params.user,
@@ -158,9 +125,6 @@ module.exports = function(app, nconf) {
   });
 
   app.get('/v1/:user?/mixes/channels/:channel', function(req, res) {
-    cube("get_mixes_by_tag", {
-      user: req.params.user
-    });
     if (req.params.user) {
       var query = {
         owner: req.params.user,
@@ -179,10 +143,6 @@ module.exports = function(app, nconf) {
   });
 
   app.get('/v1/:user?/mixes/:id', function(req, res) {
-    cube("get_mix", {
-      user: req.params.user,
-      id: req.params.id
-    });
     return Mix.findById(req.params.id, function(err, mix) {
       if (!err) {
         return res.send(mix);
@@ -198,10 +158,6 @@ module.exports = function(app, nconf) {
 
   app.put('/v1/:user?/mixes/:id', ensureOwnership, function(req, res) {
     var owner = (req.params.user)?req.params.user:req.body.owner;
-    cube("put_mix", {
-      user: owner,
-      id: req.params.id
-    });
 
     return Mix.findById(req.params.id, function(err, mix) {
 
@@ -243,10 +199,6 @@ module.exports = function(app, nconf) {
   app.post('/v1/:user?/mixes', ensureOwnership, function(req, res) {
     var owner = (req.params.user)?req.params.user:req.body.owner;
 
-    cube("post_mix", {
-      user: owner //ID?
-    });
-
     var mix;
     // var owner;
     var content = null;
@@ -285,10 +237,6 @@ module.exports = function(app, nconf) {
   // ID is unique, ignore user
   // TODO: restrict to same user only
   app.delete('/v1/:user?/mixes/:id', function(req, res) {
-    cube("delete_mix", {
-      user: req.params.user,
-      id: req.params.id
-    });
     return Mix.findById(req.params.id, function(err, mix) {
       if (mix.owner != req.user.username) {
         res.status(403);
